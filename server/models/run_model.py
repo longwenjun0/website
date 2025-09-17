@@ -1,7 +1,6 @@
 import sys
 import json
 import os
-from openai import AzureOpenAI
 
 
 def main():

@@ -8,6 +8,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const app = express();
+const PORT = process.env.PORT || 5000;
 app.use(cors());
 app.use(express.json());
 
@@ -119,6 +120,6 @@ app.get('/api/mausoleums', (req, res) => {
   });
 });
 
-app.listen(5000, () => {
-  console.log('Backend started on http://localhost:5000');
+app.listen(PORT, () => {
+  console.log(`Backend started on http://localhost:${PORT}`);
 });
