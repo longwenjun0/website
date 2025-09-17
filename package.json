@@ -2,7 +2,7 @@
   "name": "website_test",
   "private": true,
   "scripts": {
-    "start": "concurrently \"node scripts/start_mysql.js\" \"wait-on tcp:5000 && npm run dev --prefix client\" \"npm run start --prefix server\""
+    "start": "concurrently \"wait-on tcp:5000 && npm run dev --prefix client\" \"npm run start --prefix server\""
   },
   "devDependencies": {
     "concurrently": "^8.2.2",
