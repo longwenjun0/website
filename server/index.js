@@ -38,6 +38,8 @@ function runPythonOnStartup() {
 // 执行 Python
 runPythonOnStartup();
 
+app.use(express.static(path.join(__dirname, "../client/dist")));
+
 app.post("/api/chat", (req, res) => {
   const { model, text } = req.body;
   // console.log("model:", model);
@@ -119,8 +121,6 @@ app.get('/api/mausoleums', (req, res) => {
     }
   });
 });
-
-app.use(express.static(path.join(__dirname, "../client/dist")));
 
 app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "../client/dist/index.html"));
