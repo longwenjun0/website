@@ -9,6 +9,7 @@
     "wait-on": "^8.0.4"
   },
   "dependencies": {
+    "cors": "^2.8.5",
     "body-parser": "^2.2.0",
     "express": "^5.1.0",
     "mysql2": "^3.14.5"
