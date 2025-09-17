@@ -1,0 +1,16 @@
+# 忽略 server 文件夹下的 venv 目录
+server/venv/
+
+server/node_modules/
+
+server/__pycache__/
+
+client/node_modules/
+
+# 忽略根目录下的 node_modules 目录
+node_modules/
+
+# 忽略根目录下的 venv 目录
+venv/
+
+.venv/

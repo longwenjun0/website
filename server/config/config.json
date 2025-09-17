@@ -1,0 +1,7 @@
+{
+  "host": "localhost",
+  "user": "tombs",
+  "password": "tombs123",
+  "database": "tombs_db",
+  "table_name": "mausoleums"
+}
