@@ -22,7 +22,7 @@ def data_fliter():
         "password": os.getenv("DB_PASS"),
         "database": os.getenv("DB_NAME"),
         "table_name":os.getenv("DB_TABLE_NAME"),
-        "port": int(os.getenv("DB_PORT", 3306)) 
+        "port": int(os.getenv("DB_PORT")) 
     }
 
     # 1. 创建数据库连接
