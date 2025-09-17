@@ -12,10 +12,17 @@ def data_fliter():
 
     BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
-    config_path = os.path.join(BASE_DIR, "..", "config", "config.json")
+    # config_path = os.path.join(BASE_DIR, "..", "config", "config.json")
 
-    with open(config_path, "r", encoding="utf-8") as f:
-        config = json.load(f)
+    # with open(config_path, "r", encoding="utf-8") as f:
+    #     config = json.load(f)
+    config = {
+    "host": os.getenv("DB_HOST"),
+    "user": os.getenv("DB_USER"),
+    "password": os.getenv("DB_PASS"),
+    "database": os.getenv("DB_NAME"),
+    "table_name":os.getenv("DB_TABLE_NAME")
+    }
 
     # 1. 创建数据库连接
     conn = mysql.connector.connect(

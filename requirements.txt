@@ -5,7 +5,6 @@ certifi==2025.8.3
 click==8.2.1
 distro==1.9.0
 et_xmlfile==2.0.0
-fastapi==0.116.1
 Flask==3.1.2
 greenlet==3.2.4
 h11==0.16.0
@@ -18,7 +17,6 @@ jiter==0.11.0
 MarkupSafe==3.0.2
 mysql-connector-python==9.4.0
 numpy==2.3.3
-openai==1.107.2
 openpyxl==3.1.5
 pandas==2.3.2
 pydantic==2.11.9
