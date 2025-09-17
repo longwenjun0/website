@@ -17,11 +17,12 @@ def data_fliter():
     # with open(config_path, "r", encoding="utf-8") as f:
     #     config = json.load(f)
     config = {
-    "host": os.getenv("DB_HOST"),
-    "user": os.getenv("DB_USER"),
-    "password": os.getenv("DB_PASS"),
-    "database": os.getenv("DB_NAME"),
-    "table_name":os.getenv("DB_TABLE_NAME")
+        "host": os.getenv("DB_HOST"),
+        "user": os.getenv("DB_USER"),
+        "password": os.getenv("DB_PASS"),
+        "database": os.getenv("DB_NAME"),
+        "table_name":os.getenv("DB_TABLE_NAME"),
+        "port": int(os.getenv("DB_PORT", 3306)) 
     }
 
     # 1. 创建数据库连接
@@ -29,7 +30,8 @@ def data_fliter():
         host=config["host"],       
         user=config["user"],            
         password=config["password"], 
-        database=config["database"]    
+        database=config["database"],
+        port=config["port"]
     )
 
     # 2. 创建游标（返回字典）

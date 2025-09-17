@@ -14,13 +14,15 @@ config = {
     "user": os.getenv("DB_USER"),
     "password": os.getenv("DB_PASS"),
     "database": os.getenv("DB_NAME"),
-    "table_name":os.getenv("DB_TABLE_NAME")
+    "table_name":os.getenv("DB_TABLE_NAME"),
+    "port": int(os.getenv("DB_PORT", 3306)) 
     }
 DB_NAME = config["database"]
 DB_USER = config["user"]
 DB_PASSWORD = config["password"]
 DB_HOST = config["host"]
 TABLE_NAME = config["table_name"]
+DB_PORT = config["port"]
 EXCEL_FILE = os.path.join(BASE_DIR, "..", "data", "mausoleums.xlsx")
 
 def get_connection(host, user, password, database):
@@ -37,7 +39,8 @@ def init_db():
     conn = mysql.connector.connect(
         host=DB_HOST,
         user=DB_USER,
-        password=DB_PASSWORD
+        password=DB_PASSWORD,
+        port=DB_PORT
     )
     cursor = conn.cursor()
 
