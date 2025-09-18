@@ -9,7 +9,16 @@ const __dirname = path.dirname(__filename);
 
 const app = express();
 const PORT = process.env.PORT || 5000;
-app.use(cors());
+
+
+// 开启 CORS
+app.use(cors({
+  origin: "https://website-client-xxod.onrender.com", // 允许的前端地址
+  methods: ["GET", "POST", "PUT", "DELETE"],          // 允许的请求方式
+  credentials: true                                   // 如果要带 cookie
+}));
+
+// app.use(cors());
 app.use(express.json());
 
 // 启动后初始化数据库
