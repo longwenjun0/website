@@ -56,9 +56,11 @@ const sendMessage = async () => {
   scrollToBottom();
 
   try {
-    const res = await axios.post('https://website-0lu7.onrender.com/api/chat', {
-      model: currentModel.value,
-      text: inputText,
+    const res = await axios.get('https://website-0lu7.onrender.com/api/chat', {
+      params: {
+        model: currentModel.value,
+        text: inputText
+      }
     });
 
     Object.assign(placeholder, { text: res.data.reply.replace(/\n\s*\n/g, '\n') });
