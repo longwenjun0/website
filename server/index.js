@@ -23,23 +23,29 @@ app.use(express.json());
 
 // 启动后初始化数据库
 function runPythonOnStartup() {
-  const pythonProcess = spawn("python", [
-    path.join(__dirname, "models", "init_db.py")
-  ]);
+  const scriptPath = path.join(__dirname, "models", "init_db.py");
+  const pythonCmd = process.env.PYTHON || "python3"; // 优先用 PYTHON 环境变量
+
+  const pythonProcess = spawn(pythonCmd, [scriptPath]);
+
+  let output = "";
+  let errors = "";
 
   pythonProcess.stdout.on("data", (data) => {
-    console.log(`Python: ${data}`);
+    output += data.toString();
   });
 
   pythonProcess.stderr.on("data", (data) => {
-    console.error(`Python error: ${data}`);
+    errors += data.toString();
   });
 
   pythonProcess.on("close", (code) => {
     if (code === 0) {
-      console.log("Python script executed successfully!");
+      console.log("✅ Python script executed successfully!");
+      console.log("输出内容:", output);
     } else {
-      console.error(`Python script exited with code ${code}`);
+      console.error(`❌ Python script exited with code ${code}`);
+      console.error("错误内容:", errors);
     }
   });
 }
@@ -98,7 +104,8 @@ app.get('/api/mausoleums', (req, res) => {
     city: req.query.city || ''
   };
 
-  console.log("received parameters");
+  console.log("received parameters", filters.dynasty, filters.province, filters.city);
+  
   // 调用 Python 脚本
   const pythonProcess = spawn("python3", [
     path.join(__dirname, "models", "mausoleums.py"),
