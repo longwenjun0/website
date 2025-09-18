@@ -25,6 +25,8 @@ def data_fliter():
     target_province = sys.argv[2] if len(sys.argv) > 2 else "all"
     target_city = sys.argv[3] if len(sys.argv) > 3 else "all"
 
+    TABLE_NAME = os.getenv("DB_TABLE_NAME")
+
     # BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
     # config_path = os.path.join(BASE_DIR, "..", "config", "config.json")
@@ -51,7 +53,7 @@ def data_fliter():
     cursor = conn.cursor(cursor_factory=RealDictCursor)  # 返回字典
 
     # 构建动态 SQL
-    query = "SELECT * FROM mausoleums WHERE 1=1"
+    query = f"SELECT * FROM {TABLE_NAME} WHERE 1=1"
     params = []
 
     if target_dynasty != "all":
