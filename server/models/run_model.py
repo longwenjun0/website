@@ -1,11 +1,12 @@
 import sys
 import json
 import os
+from openai import AzureOpenAI
 
 
 def main():
-    endpoint = "aaa"
-    subscription_key = "aaa"
+    endpoint = os.getenv("END_POINT")
+    subscription_key = os.getenv("API_KEY")
     api_version = "2024-12-01-preview"
 
     if len(sys.argv) < 3:
@@ -21,31 +22,31 @@ def main():
     deployment = model
     # print(f"Using model: {model} with deployment: {deployment}")
 
-    # client = AzureOpenAI(
-    #     api_version=api_version,
-    #     azure_endpoint=endpoint,
-    #     api_key=subscription_key,
-    # )
+    client = AzureOpenAI(
+        api_version=api_version,
+        azure_endpoint=endpoint,
+        api_key=subscription_key,
+    )
 
     try:
-        # response = client.chat.completions.create(
-        #     messages=[
-        #         {
-        #             "role": "system",
-        #             "content": "You are a helpful assistant.",
-        #         },
-        #         {
-        #             "role": "user",
-        #             "content": question,
-        #         }
-        #     ],
-        #     max_completion_tokens=4096,
-        #     temperature=1.0,
-        #     top_p=1.0,
-        #     model=deployment
-        # )
-        # print(response.choices[0].message.content+f"({model})")
-        print(f"Simulated response for model {model} with question: {question}")
+        response = client.chat.completions.create(
+            messages=[
+                {
+                    "role": "system",
+                    "content": "You are a helpful assistant.",
+                },
+                {
+                    "role": "user",
+                    "content": question,
+                }
+            ],
+            max_completion_tokens=4096,
+            temperature=1.0,
+            top_p=1.0,
+            model=deployment
+        )
+        print(response.choices[0].message.content+f"({model})")
+        # print(f"Simulated response for model {model} with question: {question}")
     except Exception as e:
         print(f"Error: {str(e)}")
         sys.exit(1)

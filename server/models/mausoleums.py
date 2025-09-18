@@ -1,56 +1,18 @@
 import sys
 import os
 import json
-import mysql.connector  # 使用 mysql-connector-python
-import psycopg2
-from psycopg2.extras import RealDictCursor
+from init_db import postgresql_connect
 
 
 def data_fliter():
-    # rows = [
-    #     {
-    #         "id": 1,
-    #         "name": "示例陵墓",
-    #         "dynasty": "唐",
-    #         "province": "陕西",
-    #         "city": "西安",
-    #         "description": "这是一个示例陵墓。",
-    #         "lat": 34.3416,
-    #         "lng": 108.9398
-    #     }
-    # ]
-
-    # 获取 Node.js 传入的参数
+    # Get command line arguments
     target_dynasty = sys.argv[1] if len(sys.argv) > 1 else "all"
     target_province = sys.argv[2] if len(sys.argv) > 2 else "all"
     target_city = sys.argv[3] if len(sys.argv) > 3 else "all"
 
     TABLE_NAME = os.getenv("DB_TABLE_NAME")
-
-    # BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-
-    # config_path = os.path.join(BASE_DIR, "..", "config", "config.json")
-
-    # with open(config_path, "r", encoding="utf-8") as f:
-    #     config = json.load(f)
-    # config = {
-    #     "host": os.getenv("DB_HOST"),
-    #     "user": os.getenv("DB_USER"),
-    #     "password": os.getenv("DB_PASS"),
-    #     "database": os.getenv("DB_NAME"),
-    #     "table_name":os.getenv("DB_TABLE_NAME"),
-    #     "port": int(os.getenv("DB_PORT")) 
-    # }
-
-    DATABASE_URL = os.getenv("DATABASE_URL")
-    if not DATABASE_URL:
-        raise ValueError("❌ DATABASE_URL 环境变量没有设置！")
-
-    if DATABASE_URL.startswith("postgres://"):
-        DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
-
-    conn = psycopg2.connect(DATABASE_URL, sslmode="require")
-    cursor = conn.cursor(cursor_factory=RealDictCursor)  # 返回字典
+ 
+    conn, cursor = postgresql_connect()
 
     # 构建动态 SQL
     query = f"SELECT * FROM {TABLE_NAME} WHERE 1=1"
@@ -69,9 +31,9 @@ def data_fliter():
     else:
         target_city = "all"
 
-    # 执行查询
+    # check if params is empty
     cursor.execute(query, tuple(params))
-    rows = cursor.fetchall()  # 返回字典列表
+    rows = cursor.fetchall()  # returns a list of dictionaries
 
     print(json.dumps(rows, ensure_ascii=False))
 

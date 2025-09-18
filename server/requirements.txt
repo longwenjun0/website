@@ -4,3 +4,4 @@ pandas
 mysql-connector-python
 python-multipart
 psycopg2-binary
+openai
