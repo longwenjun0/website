@@ -98,8 +98,9 @@ app.get('/api/mausoleums', (req, res) => {
     city: req.query.city || ''
   };
 
+  console.log("received parameters");
   // 调用 Python 脚本
-  const pythonProcess = spawn("python", [
+  const pythonProcess = spawn("python3", [
     path.join(__dirname, "models", "mausoleums.py"),
     filters.dynasty,
     filters.province,
@@ -107,6 +108,8 @@ app.get('/api/mausoleums', (req, res) => {
   ]);
 
   let output = "";
+
+  console.log("spawned python process");
 
   pythonProcess.stdout.on("data", (data) => {
     output += data.toString();
@@ -131,9 +134,9 @@ app.get('/api/mausoleums', (req, res) => {
   });
 });
 
-app.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname, "../client/dist/index.html"));
-});
+// app.get("/", (req, res) => {
+//   res.sendFile(path.join(__dirname, "../client/dist/index.html"));
+// });
 
 app.listen(PORT, () => {
   console.log(`Backend started on http://localhost:${PORT}`);
