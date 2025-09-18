@@ -144,7 +144,7 @@ async function fetchData() {
   let mausoleums = []; // ⚠️ 提前声明
 
   try {
-    const res = await axios.get('/api/mausoleums', { params: queryParams });
+    const res = await axios.get('https://website-0lu7.onrender.com/api/mausoleums', { params: queryParams });
     mausoleums = res.data; // axios 自动解析 JSON
     console.log("返回数据:", mausoleums);
   } catch (error) {
