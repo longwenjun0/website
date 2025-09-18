@@ -56,7 +56,7 @@ const sendMessage = async () => {
   scrollToBottom();
 
   try {
-    const res = await axios.post('/api/chat', {
+    const res = await axios.post('https://website-0lu7.onrender.com/api/chat', {
       model: currentModel.value,
       text: inputText,
     });
