@@ -35,6 +35,8 @@ def get_connection(host, user, password, database):
 
 
 def init_db():
+    print("Initializing the database...")
+    print(f"Using database config: host={DB_HOST}, user={DB_USER}, database={DB_NAME}, port={DB_PORT}")
     # 1. 先连接 MySQL（不指定数据库）
     conn = mysql.connector.connect(
         host=DB_HOST,
