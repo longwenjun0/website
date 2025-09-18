@@ -64,7 +64,7 @@ app.post("/api/chat", (req, res) => {
     return res.status(400).json({ error: "No input text provided" });
   }
 
-  const pythonProcess = spawn("python", [
+  const pythonProcess = spawn("python3", [
     path.join(__dirname, "models", "run_model.py"),
     model || "gpt-4o",   // 默认 gpt-4o
     text,
@@ -105,7 +105,7 @@ app.get('/api/mausoleums', (req, res) => {
   };
 
   console.log("received parameters", filters.dynasty, filters.province, filters.city);
-  
+
   // 调用 Python 脚本
   const pythonProcess = spawn("python3", [
     path.join(__dirname, "models", "mausoleums.py"),
@@ -115,8 +115,6 @@ app.get('/api/mausoleums', (req, res) => {
   ]);
 
   let output = "";
-
-  console.log("spawned python process");
 
   pythonProcess.stdout.on("data", (data) => {
     output += data.toString();
@@ -135,8 +133,8 @@ app.get('/api/mausoleums', (req, res) => {
       const jsonData = JSON.parse(output); // ✅ Python 输出 JSON
       res.json(jsonData);
     } catch (err) {
-      console.error("解析 JSON 失败:", err);
-      res.status(500).json({ error: "返回数据格式错误" });
+      console.error("json error:", err);
+      res.status(500).json({ error: "Returned data format is wrong." });
     }
   });
 });

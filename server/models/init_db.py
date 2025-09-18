@@ -1,6 +1,7 @@
 import pandas as pd
 import os
 import psycopg2
+from psycopg2.extras import RealDictCursor
 
 
 def postgresql_connect():
@@ -10,14 +11,14 @@ def postgresql_connect():
     if DATABASE_URL.startswith("postgres://"):
         DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
     conn = psycopg2.connect(DATABASE_URL, sslmode="require")
-    cursor = conn.cursor()
+    cursor = conn.cursor(cursor_factory=RealDictCursor)
     return conn, cursor
 
 def init_db():
     BASE_DIR = os.path.dirname(os.path.abspath(__file__))
     EXCEL_FILE = os.path.join(BASE_DIR, "..", "data", "mausoleums.xlsx")
     TABLE_NAME = os.getenv("DB_TABLE_NAME")
-    
+
     conn, cursor = postgresql_connect()
     # create table if not exists
     cursor.execute(f"""
