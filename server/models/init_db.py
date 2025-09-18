@@ -25,20 +25,12 @@ TABLE_NAME = config["table_name"]
 DB_PORT = config["port"]
 EXCEL_FILE = os.path.join(BASE_DIR, "..", "data", "mausoleums.xlsx")
 
-print(f"Using database config: host={DB_HOST}, user={DB_USER}, database={DB_NAME}, port={DB_PORT}")
-
-def get_connection(host, user, password, database):
-    return mysql.connector.connect(
-        host=host,
-        user=user,
-        password=password,
-        database=database
-)
+print(f"Using database config: host={DB_HOST}, user={DB_USER}, database={DB_NAME}, port={DB_PORT}", flush=True)
 
 
 def init_db():
     print("Initializing the database...")
-    print(f"Using database config: host={DB_HOST}, user={DB_USER}, database={DB_NAME}, port={DB_PORT}")
+    print(f"Using database config: host={DB_HOST}, user={DB_USER}, database={DB_NAME}, port={DB_PORT}", flush=True)
     # 1. 先连接 MySQL（不指定数据库）
     conn = mysql.connector.connect(
         host=DB_HOST,
