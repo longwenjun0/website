@@ -146,9 +146,9 @@ async function fetchData() {
   try {
     const res = await axios.get('https://website-0lu7.onrender.com/api/mausoleums', { params: queryParams });
     mausoleums = res.data; // axios 自动解析 JSON
-    console.log("返回数据:", mausoleums);
+    console.log("Return data:", mausoleums);
   } catch (error) {
-    console.error("请求失败:", error);
+    console.error("Request error:", error);
     return; // 请求失败就不执行下面地图更新
   }
 

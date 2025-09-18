@@ -8,12 +8,17 @@ def main():
     subscription_key = os.getenv("API_KEY")
     api_version = "2024-12-01-preview"
 
-    if len(sys.argv) < 3:
-        print("Usage: python run_model.py <model> <question>", flush=True)
-        sys.exit(1)
+    print(f"Using endpoint: {endpoint}", flush=True)
+    print(f"Using API key: {'*' * (len(subscription_key) - 4) + subscription_key[-4:]}", flush=True)
+
+    # if len(sys.argv) < 3:
+    #     print("Usage: python run_model.py <model> <question>", flush=True)
+    #     sys.exit(1)
 
     model = sys.argv[1]
     question = sys.argv[2]
+    # model = "gpt-4o"
+    # question = "please introduce Paris"
 
     deployment = model
 
