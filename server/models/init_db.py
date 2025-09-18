@@ -2,6 +2,7 @@ import mysql.connector
 import pandas as pd
 import json
 import os
+import psycopg2
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 config_path = os.path.join(BASE_DIR, "..", "config", "config.json")
@@ -31,14 +32,16 @@ print(f"Using database config: host={DB_HOST}, user={DB_USER}, database={DB_NAME
 def init_db():
     print("Initializing the database...")
     print(f"Using database config: host={DB_HOST}, user={DB_USER}, database={DB_NAME}, port={DB_PORT}", flush=True)
+    DATABASE_URL = os.getenv("DATABASE_URL")
+    conn = psycopg2.connect(DATABASE_URL, sslmode="require")
     # 1. 先连接 MySQL（不指定数据库）
-    conn = mysql.connector.connect(
-        host=DB_HOST,
-        user=DB_USER,
-        database=DB_NAME,
-        password=DB_PASSWORD,
-        port=DB_PORT
-    )
+    # conn = mysql.connector.connect(
+    #     host=DB_HOST,
+    #     user=DB_USER,
+    #     database=DB_NAME,
+    #     password=DB_PASSWORD,
+    #     port=DB_PORT
+    # )
     cursor = conn.cursor()
 
     # 2. 检查数据库是否存在
@@ -55,13 +58,16 @@ def init_db():
     conn.close()
 
     # 3. 连接到目标数据库
-    conn = mysql.connector.connect(
-        host=DB_HOST,
-        user=DB_USER,
-        password=DB_PASSWORD,
-        database=DB_NAME,
-        port=DB_PORT
-    )
+    # conn = mysql.connector.connect(
+    #     host=DB_HOST,
+    #     user=DB_USER,
+    #     password=DB_PASSWORD,
+    #     database=DB_NAME,
+    #     port=DB_PORT
+    # )
+    DATABASE_URL = os.getenv("DATABASE_URL")
+    conn = psycopg2.connect(DATABASE_URL, sslmode="require")
+
     cursor = conn.cursor()
 
     # 4. 创建表 mausoleums（如果不存在）

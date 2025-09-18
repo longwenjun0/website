@@ -2,6 +2,7 @@ import sys
 import os
 import json
 import mysql.connector  # 使用 mysql-connector-python
+import psycopg2
 
 
 def data_fliter():
@@ -39,13 +40,15 @@ def data_fliter():
     }
 
     # 1. 创建数据库连接
-    conn = mysql.connector.connect(
-        host=config["host"],       
-        user=config["user"],            
-        password=config["password"], 
-        database=config["database"],
-        port=config["port"]
-    )
+    DATABASE_URL = os.getenv("DATABASE_URL")
+    conn = psycopg2.connect(DATABASE_URL, sslmode="require")
+    # conn = mysql.connector.connect(
+    #     host=config["host"],       
+    #     user=config["user"],            
+    #     password=config["password"], 
+    #     database=config["database"],
+    #     port=config["port"]
+    # )
 
     # 2. 创建游标（返回字典）
     cursor = conn.cursor(dictionary=True)
