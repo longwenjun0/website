@@ -33,6 +33,11 @@ def init_db():
     print("Initializing the database...")
     print(f"Using database config: host={DB_HOST}, user={DB_USER}, database={DB_NAME}, port={DB_PORT}", flush=True)
     DATABASE_URL = os.getenv("DATABASE_URL")
+    if not DATABASE_URL:
+        raise ValueError("❌ DATABASE_URL 环境变量没有设置！")
+    # psycopg2 不支持 postgres:// 前缀，需要替换
+    if DATABASE_URL.startswith("postgres://"):
+        DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
     conn = psycopg2.connect(DATABASE_URL, sslmode="require")
     # 1. 先连接 MySQL（不指定数据库）
     # conn = mysql.connector.connect(
@@ -65,7 +70,6 @@ def init_db():
     #     database=DB_NAME,
     #     port=DB_PORT
     # )
-    DATABASE_URL = os.getenv("DATABASE_URL")
     conn = psycopg2.connect(DATABASE_URL, sslmode="require")
 
     cursor = conn.cursor()

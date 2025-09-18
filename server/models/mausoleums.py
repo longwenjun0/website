@@ -30,17 +30,22 @@ def data_fliter():
 
     # with open(config_path, "r", encoding="utf-8") as f:
     #     config = json.load(f)
-    config = {
-        "host": os.getenv("DB_HOST"),
-        "user": os.getenv("DB_USER"),
-        "password": os.getenv("DB_PASS"),
-        "database": os.getenv("DB_NAME"),
-        "table_name":os.getenv("DB_TABLE_NAME"),
-        "port": int(os.getenv("DB_PORT")) 
-    }
+    # config = {
+    #     "host": os.getenv("DB_HOST"),
+    #     "user": os.getenv("DB_USER"),
+    #     "password": os.getenv("DB_PASS"),
+    #     "database": os.getenv("DB_NAME"),
+    #     "table_name":os.getenv("DB_TABLE_NAME"),
+    #     "port": int(os.getenv("DB_PORT")) 
+    # }
 
     # 1. 创建数据库连接
     DATABASE_URL = os.getenv("DATABASE_URL")
+    if not DATABASE_URL:
+        raise ValueError("❌ DATABASE_URL 环境变量没有设置！")
+    # psycopg2 不支持 postgres:// 前缀，需要替换
+    if DATABASE_URL.startswith("postgres://"):
+        DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
     conn = psycopg2.connect(DATABASE_URL, sslmode="require")
     # conn = mysql.connector.connect(
     #     host=config["host"],       
