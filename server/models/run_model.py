@@ -8,39 +8,30 @@ def main():
     subscription_key = os.getenv("API_KEY")
     api_version = "2024-12-01-preview"
 
-    print(f"Using endpoint: {endpoint}", flush=True)
-    print(f"Using API key: {'*' * (len(subscription_key) - 4) + subscription_key[-4:]}", flush=True)
-
-    # if len(sys.argv) < 3:
-    #     print("Usage: python run_model.py <model> <question>", flush=True)
-    #     sys.exit(1)
-
     model = sys.argv[1]
     question = sys.argv[2]
-    # model = "gpt-4o"
-    # question = "please introduce Paris"
 
-    deployment = model
+    # deployment = model
 
-    client = AzureOpenAI(
-        api_version=api_version,
-        azure_endpoint=endpoint,
-        api_key=subscription_key,
-    )
+    # client = AzureOpenAI(
+    #     api_version=api_version,
+    #     azure_endpoint=endpoint,
+    #     api_key=subscription_key,
+    # )
 
     try:
-        response = client.chat.completions.create(
-            model=deployment,
-            messages=[
-                {"role": "system", "content": "You are a helpful assistant."},
-                {"role": "user", "content": question}
-            ],
-            max_completion_tokens=4096,
-            temperature=1.0,
-            top_p=1.0
-        )
-
-        print(response.choices[0].message.content, flush=True)
+        # response = client.chat.completions.create(
+        #     model=deployment,
+        #     messages=[
+        #         {"role": "system", "content": "You are a helpful assistant."},
+        #         {"role": "user", "content": question}
+        #     ],
+        #     max_completion_tokens=4096,
+        #     temperature=1.0,
+        #     top_p=1.0
+        # )
+        # print(response.choices[0].message.content, flush=True)
+        print(f"This is a placeholder response. Model:{model}, question: {question}", flush=True)
 
     except Exception as e:
         # 输出到 stderr 并返回非零退出码
