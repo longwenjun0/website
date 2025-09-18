@@ -3,24 +3,19 @@ import json
 import os
 from openai import AzureOpenAI
 
-
 def main():
     endpoint = os.getenv("END_POINT")
     subscription_key = os.getenv("API_KEY")
     api_version = "2024-12-01-preview"
 
     if len(sys.argv) < 3:
-        print("Usage: python run_model.py <model> <question>")
+        print("Usage: python run_model.py <model> <question>", flush=True)
         sys.exit(1)
 
     model = sys.argv[1]
     question = sys.argv[2]
-    # print(f"Using model: {model} with question: {question}")
 
-    # model = "gpt-4o"  # Default model
-    # question = "I am going to Paris, what should I see?"  # Default question
     deployment = model
-    # print(f"Using model: {model} with deployment: {deployment}")
 
     client = AzureOpenAI(
         api_version=api_version,
@@ -28,29 +23,23 @@ def main():
         api_key=subscription_key,
     )
 
-    print(f"python using model: {model} with question: {question}", flush=True)
-
     try:
         response = client.chat.completions.create(
+            model=deployment,
             messages=[
-                {
-                    "role": "system",
-                    "content": "You are a helpful assistant.",
-                },
-                {
-                    "role": "user",
-                    "content": question,
-                }
+                {"role": "system", "content": "You are a helpful assistant."},
+                {"role": "user", "content": question}
             ],
             max_completion_tokens=4096,
             temperature=1.0,
-            top_p=1.0,
-            model=deployment
+            top_p=1.0
         )
-        print(response.choices[0].message.content+f"({model})")
-        # print(f"Simulated response for model {model} with question: {question}")
+
+        print(response.choices[0].message.content, flush=True)
+
     except Exception as e:
-        print(f"Error: {str(e)}")
+        # 输出到 stderr 并返回非零退出码
+        print(f"Python script error: {str(e)}", file=sys.stderr, flush=True)
         sys.exit(1)
 
 if __name__ == "__main__":

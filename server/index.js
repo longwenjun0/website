@@ -55,10 +55,9 @@ runPythonOnStartup();
 
 app.use(express.static(path.join(__dirname, "../client/dist")));
 
-app.post("/api/chat", (req, res) => {
-  const { model, text } = req.body;
-  // console.log("model:", model);
-  // console.log("text:", text);
+app.get("/api/chat", (req, res) => {
+  const model = req.query.model || "gpt-4o"; // 默认 gpt-4o
+  const text = req.query.text;
 
   if (!text) {
     return res.status(400).json({ error: "No input text provided" });
@@ -68,7 +67,7 @@ app.post("/api/chat", (req, res) => {
 
   const pythonProcess = spawn("python3", [
     path.join(__dirname, "models", "run_model.py"),
-    model || "gpt-4o",   // 默认 gpt-4o
+    model,
     text,
   ]);
 
@@ -82,19 +81,11 @@ app.post("/api/chat", (req, res) => {
     console.error(`Python error: ${data}`);
   });
 
-  pythonProcess.stderr.on("data", (data) => {
-    console.error(`Python error: ${data}`);
-    res.status(500).json({ error: data.toString() });
-  });
-
-  // console.log("python output:", output.trim());
-
-  // Python 执行完成后，将结果返回前端
   pythonProcess.on("close", (code) => {
     if (code !== 0) {
       return res.status(500).json({ error: "Python script error" });
     }
-    res.json({ reply: output.trim() }); // ✅ 这里发送回前端
+    res.json({ reply: output.trim() });
   });
 });
 
