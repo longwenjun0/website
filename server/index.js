@@ -42,10 +42,10 @@ function runPythonOnStartup() {
   pythonProcess.on("close", (code) => {
     if (code === 0) {
       console.log("✅ Python script executed successfully!");
-      console.log("输出内容:", output);
+      console.log(output);
     } else {
       console.error(`❌ Python script exited with code ${code}`);
-      console.error("错误内容:", errors);
+      console.error("Error:", errors);
     }
   });
 }
@@ -63,6 +63,8 @@ app.post("/api/chat", (req, res) => {
   if (!text) {
     return res.status(400).json({ error: "No input text provided" });
   }
+
+  console.log("received parameters", model, text);
 
   const pythonProcess = spawn("python3", [
     path.join(__dirname, "models", "run_model.py"),

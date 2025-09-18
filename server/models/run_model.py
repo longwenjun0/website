@@ -28,6 +28,8 @@ def main():
         api_key=subscription_key,
     )
 
+    print(f"python using model: {model} with question: {question}", flush=True)
+
     try:
         response = client.chat.completions.create(
             messages=[
