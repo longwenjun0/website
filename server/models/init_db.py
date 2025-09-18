@@ -49,35 +49,35 @@ def init_db():
     # )
     cursor = conn.cursor()
 
-    # 2. 检查数据库是否存在
-    cursor.execute("SHOW DATABASES LIKE %s;", (DB_NAME,))
-    exists = cursor.fetchone()
+    # # 2. 检查数据库是否存在
+    # cursor.execute("SHOW DATABASES LIKE %s;", (DB_NAME,))
+    # exists = cursor.fetchone()
 
-    if not exists:
-        print(f"Database {DB_NAME} does not exist, building it...")
-        cursor.execute(f"CREATE DATABASE {DB_NAME} CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;")
-    else:
-        print(f"Database {DB_NAME} already exists.")
+    # if not exists:
+    #     print(f"Database {DB_NAME} does not exist, building it...")
+    #     cursor.execute(f"CREATE DATABASE {DB_NAME} CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;")
+    # else:
+    #     print(f"Database {DB_NAME} already exists.")
 
-    cursor.close()
-    conn.close()
+    # cursor.close()
+    # conn.close()
 
-    # 3. 连接到目标数据库
-    # conn = mysql.connector.connect(
-    #     host=DB_HOST,
-    #     user=DB_USER,
-    #     password=DB_PASSWORD,
-    #     database=DB_NAME,
-    #     port=DB_PORT
-    # )
-    conn = psycopg2.connect(DATABASE_URL, sslmode="require")
+    # # 3. 连接到目标数据库
+    # # conn = mysql.connector.connect(
+    # #     host=DB_HOST,
+    # #     user=DB_USER,
+    # #     password=DB_PASSWORD,
+    # #     database=DB_NAME,
+    # #     port=DB_PORT
+    # # )
+    # conn = psycopg2.connect(DATABASE_URL, sslmode="require")
 
-    cursor = conn.cursor()
+    # cursor = conn.cursor()
 
-    # 4. 创建表 mausoleums（如果不存在）
+    # 1. 创建表（如果不存在）
     cursor.execute(f"""
     CREATE TABLE IF NOT EXISTS {TABLE_NAME} (
-        id INT AUTO_INCREMENT PRIMARY KEY,
+        id SERIAL PRIMARY KEY,
         dynasty VARCHAR(50),
         emperor VARCHAR(50),
         reign_title VARCHAR(50),
@@ -87,20 +87,21 @@ def init_db():
         province VARCHAR(50),
         city VARCHAR(50),
         location VARCHAR(255),
-        lat DOUBLE,
-        lng DOUBLE
+        lat DOUBLE PRECISION,
+        lng DOUBLE PRECISION
     );
     """)
+    print(f"✅ Table {TABLE_NAME} ensured to exist.")
 
-    # 5. 清空表（如果已经存在数据）
-    cursor.execute(f"TRUNCATE TABLE {TABLE_NAME};")
-    # print(f"表 {TABLE_NAME} 已清空，准备导入新数据...")
+    # 2. 清空表
+    cursor.execute(f"TRUNCATE TABLE {TABLE_NAME} RESTART IDENTITY;")
+    print(f"✅ Table {TABLE_NAME} truncated.")
 
-    # 6. 读取 Excel 数据
+    # 3. 读取 Excel 数据
     df = pd.read_excel(EXCEL_FILE)
-    df = df.where(pd.notnull(df), None)  # 将所有 NaN 替换为 None
+    df = df.where(pd.notnull(df), None)  # 将 NaN 替换为 None
 
-    # 7. 插入数据
+    # 4. 插入数据
     for _, row in df.iterrows():
         cursor.execute(f"""
         INSERT INTO {TABLE_NAME} 
@@ -112,11 +113,11 @@ def init_db():
             row['province'], row['city'], 
             row['lat'], row['lng']
         ))
-    conn.commit()
 
+    conn.commit()
     cursor.close()
     conn.close()
-    print("Finished initializing the database.")
+    print("✅ Finished initializing the PostgreSQL database.")
 
 if __name__ == "__main__":
     init_db()
