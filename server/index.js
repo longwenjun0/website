@@ -42,7 +42,6 @@ function runPythonOnStartup() {
   pythonProcess.on("close", (code) => {
     if (code === 0) {
       console.log("✅ Python script executed successfully!");
-      console.log(output);
     } else {
       console.error(`❌ Python script exited with code ${code}`);
       console.error("Error:", errors);
@@ -112,6 +111,7 @@ app.get('/api/mausoleums', (req, res) => {
   pythonProcess.stdout.on("data", (data) => {
     output += data.toString();
   });
+  console.log("Filtered data:",output);
 
   pythonProcess.stderr.on("data", (data) => {
     console.error(`Python error: ${data}`);
