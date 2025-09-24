@@ -32,13 +32,32 @@
 
     <!-- 地图 -->
     <div id="map" style="height: 800px;"></div>
+
+    <!-- 数据表格 -->
+    <div class="table-container" v-if="mausoleums.length > 0">
+      <table>
+        <thead>
+          <tr>
+            <th v-for="key in allKeys" :key="key">{{ key }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="(row, idx) in mausoleums" :key="idx">
+            <td v-for="key in allKeys" :key="key">{{ row[key] || "" }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div v-else>
+      <p style="margin-top:10px;">No data</p>
+    </div>
   </div>
 </template>
 
 <script setup>
 import axios from 'axios';
 import NavBar from '@/components/NavBar.vue';
-import { ref, reactive, onMounted, watch } from "vue";
+import { ref, reactive, onMounted, watch, computed } from "vue";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
 
@@ -51,10 +70,11 @@ const filters = reactive({
 
 // 朝代列表
 const dynasties = ref([
-  "夏","商","周","秦","西汉","东汉","三国","晋","南北朝","隋","唐","五代十国","宋","元","明","清","中华民国"
+  "西周","东周","秦","西汉","新朝", "东汉","三国","西晋","东晋", "五胡十六国", 
+  "南北朝","隋","唐","五代十国","宋辽金","元","明","清"
 ]);
 
-// 中国省份 + 城市
+// 省份 + 城市映射
 const provincesWithCities = {
   "北京":["北京"],"天津":["天津"],"上海":["上海"],"重庆":["重庆"],
   "河北":["石家庄","唐山","保定","邯郸","廊坊","秦皇岛","沧州","承德","张家口","衡水","邢台"],
@@ -87,12 +107,21 @@ const provincesWithCities = {
   "台湾":["台北","高雄","台中","台南","新竹","嘉义","基隆","宜兰","桃园","苗栗","彰化","南投","云林","屏东","台东","花莲","澎湖"]
 };
 
-
 // 省份列表
 const provinces = ref(Object.keys(provincesWithCities))
 
 // 当前市列表
 const cities = ref([])
+
+// 保存后端返回的数据
+const mausoleums = ref([])
+
+// 动态表头
+const allKeys = computed(() => {
+  const keys = new Set()
+  mausoleums.value.forEach(row => Object.keys(row).forEach(k => keys.add(k)))
+  return Array.from(keys)
+})
 
 // 监听省份变化，自动更新城市
 watch(() => filters.province, (newProvince) => {
@@ -109,47 +138,39 @@ let map = null
 let markers = []
 
 onMounted(() => {
-  // 初始化地图
   map = L.map("map").setView([34.3416, 108.9398], 5)
   L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
     attribution: "© OpenStreetMap"
   }).addTo(map)
 
-  // 标记北京为五角星
+  // 北京五角星标记
   const beijingIcon = L.divIcon({
-    html: '★',   // 五角星字符
-    className: 'star-marker', // 可自定义 CSS
-    iconSize: [20, 20],
+    html: '★',
+    className: 'star-marker',
+    iconSize: [5, 5],
     iconAnchor: [10, 10]
   });
-
   L.marker([39.9042, 116.4074], { icon: beijingIcon })
     .addTo(map)
     .bindPopup("北京");
 
-  // 加载其他数据点
   fetchData()
 })
 
-
-// 获取后端数据并更新地图
+// 获取后端数据
 async function fetchData() {
-  console.log("当前筛选条件:", JSON.stringify(filters));
-
   const queryParams = {};
-  if (filters.dynasty) queryParams.dynasty = filters.dynasty;
-  if (filters.province) queryParams.province = filters.province;
-  if (filters.city) queryParams.city = filters.city;
-
-  let mausoleums = []; // ⚠️ 提前声明
+  if (filters.dynasty && filters.dynasty !== 'all') queryParams.dynasty = filters.dynasty;
+  if (filters.province && filters.province !== 'all') queryParams.province = filters.province;
+  if (filters.city && filters.city !== 'all') queryParams.city = filters.city;
 
   try {
     const res = await axios.get('https://website-0lu7.onrender.com/api/mausoleums', { params: queryParams });
-    mausoleums = res.data; // axios 自动解析 JSON
-    console.log("Return data:", mausoleums);
+    mausoleums.value = res.data; // 更新响应式数据
   } catch (error) {
     console.error("Request error:", error);
-    return; // 请求失败就不执行下面地图更新
+    mausoleums.value = [];
+    return;
   }
 
   // 清除旧标记
@@ -157,7 +178,7 @@ async function fetchData() {
   markers = [];
 
   // 添加新标记
-  mausoleums.forEach(d => {
+  mausoleums.value.forEach(d => {
     if (d.lat && d.lng) {
       const marker = L.circleMarker([d.lat, d.lng], {
         radius: 6,
@@ -174,7 +195,6 @@ async function fetchData() {
     }
   });
 }
-
 </script>
 
 <style>
@@ -192,5 +212,26 @@ async function fetchData() {
   font-size: 24px;
   color: red;
   text-shadow: 0 0 2px black;
+}
+.table-container {
+  margin-top: 20px;
+  max-height: 300px;
+  overflow-y: auto;
+  border: 1px solid #ccc;
+}
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+thead {
+  background: #f5f5f5;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+th, td {
+  border: 1px solid #ddd;
+  padding: 8px;
+  text-align: center;
 }
 </style>

@@ -25,14 +25,15 @@ def init_db():
     CREATE TABLE IF NOT EXISTS {TABLE_NAME} (
         id SERIAL PRIMARY KEY,
         dynasty VARCHAR(50),
+        country_name VARCHAR(50),
+        posthumous_title VARCHAR(100),
         emperor VARCHAR(50),
+        temple_name VARCHAR(50),
         reign_title VARCHAR(50),
-        start_year INT,
-        end_year INT,
+        reign VARCHAR(50),
         tomb_name VARCHAR(100),
         province VARCHAR(50),
         city VARCHAR(50),
-        location VARCHAR(255),
         lat DOUBLE PRECISION,
         lng DOUBLE PRECISION
     );
@@ -51,13 +52,12 @@ def init_db():
     for _, row in df.iterrows():
         cursor.execute(f"""
         INSERT INTO {TABLE_NAME} 
-        (dynasty, emperor, reign_title, start_year, end_year, tomb_name, province, city, lat, lng)
-        VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
+        (dynasty, country_name, posthumous_title, emperor, temple_name, reign_title, reign, tomb_name, province, city, lat, lng)
+        VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
         """, (
-            row['dynasty'], row['name'], row['reign_title'],
-            row['start_year'], row['end_year'], row['tomb_name'],
-            row['province'], row['city'], 
-            row['lat'], row['lng']
+            row['dynasty'], row['country_name'], row['posthumous_title'], row['emperor'],
+            row['temple_name'], row['reign_title'], row['reign'], row['tomb_name'], 
+            row['province'], row['city'], row['lat'], row['lng']
         ))
 
     conn.commit()
