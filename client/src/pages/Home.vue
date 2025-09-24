@@ -160,9 +160,9 @@ onMounted(() => {
 // 获取后端数据
 async function fetchData() {
   const queryParams = {};
-  if (filters.dynasty && filters.dynasty !== 'all') queryParams.dynasty = filters.dynasty;
-  if (filters.province && filters.province !== 'all') queryParams.province = filters.province;
-  if (filters.city && filters.city !== 'all') queryParams.city = filters.city;
+  if (filters.dynasty) queryParams.dynasty = filters.dynasty;
+  if (filters.province) queryParams.province = filters.province;
+  if (filters.city) queryParams.city = filters.city;
 
   try {
     const res = await axios.get('https://website-0lu7.onrender.com/api/mausoleums', { params: queryParams });
