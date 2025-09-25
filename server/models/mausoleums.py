@@ -9,6 +9,10 @@ def data_fliter():
     target_dynasty = sys.argv[1] if len(sys.argv) > 1 else "all"
     target_province = sys.argv[2] if len(sys.argv) > 2 else "all"
     target_city = sys.argv[3] if len(sys.argv) > 3 else "all"
+    
+    # target_dynasty = "明"
+    # target_province = "all"
+    # target_city = "all"
 
     TABLE_NAME = os.getenv("DB_TABLE_NAME")
  

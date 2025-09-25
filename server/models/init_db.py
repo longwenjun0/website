@@ -1,6 +1,7 @@
 import pandas as pd
 import os
 import psycopg2
+import math
 from psycopg2.extras import RealDictCursor
 
 def postgresql_connect():
@@ -13,6 +14,27 @@ def postgresql_connect():
     cursor = conn.cursor(cursor_factory=RealDictCursor)
     return conn, cursor
 
+def sanitize_value(val):
+    """把 NaN 转换成 None，保证能写入 PostgreSQL"""
+    if val is None:
+        return None
+    if isinstance(val, float) and math.isnan(val):
+        return None
+    return val
+
+def detect_col_type(series: pd.Series) -> str:
+    """根据 Excel 列数据推断 PostgreSQL 类型"""
+    # 如果列是全空，默认为 TEXT
+    if series.dropna().empty:
+        return "TEXT"
+
+    # 如果全是数值（或 NaN），用 DOUBLE PRECISION
+    if pd.api.types.is_numeric_dtype(series):
+        return "DOUBLE PRECISION"
+
+    # 否则用 TEXT
+    return "TEXT"
+
 def init_db():
     BASE_DIR = os.path.dirname(os.path.abspath(__file__))
     EXCEL_FILE = os.path.join(BASE_DIR, "..", "data", "mausoleums.xlsx")
@@ -20,84 +42,46 @@ def init_db():
 
     conn, cursor = postgresql_connect()
 
-    # 1️⃣ 创建表（如果不存在，默认列）
-    cursor.execute(f"""
-    CREATE TABLE IF NOT EXISTS {TABLE_NAME} (
-        id SERIAL PRIMARY KEY,
-        dynasty VARCHAR(50),
-        country_name VARCHAR(50),
-        posthumous_title VARCHAR(100),
-        emperor VARCHAR(50),
-        temple_name VARCHAR(50),
-        reign_title VARCHAR(50),
-        reign VARCHAR(50),
-        tomb_name VARCHAR(100),
-        province VARCHAR(50),
-        city VARCHAR(50),
-        lat DOUBLE PRECISION,
-        lng DOUBLE PRECISION
-    );
-    """)
-    print(f"✅ Table {TABLE_NAME} ensured to exist.")
+    # 1️⃣ 删除原表
+    cursor.execute(f"DROP TABLE IF EXISTS {TABLE_NAME} CASCADE;")
+    print(f"🗑️ Dropped table {TABLE_NAME} if existed")
 
-    # 2️⃣ 获取数据库现有列（排除 id）
-    cursor.execute(f"""
-        SELECT column_name
-        FROM information_schema.columns
-        WHERE table_name = %s AND column_name != 'id';
-    """, (TABLE_NAME,))
-    db_cols = [row['column_name'] for row in cursor.fetchall()]
-
-    # 3️⃣ 读取 Excel 数据
+    # 2️⃣ 读取 Excel 数据
     df = pd.read_excel(EXCEL_FILE)
-    df = df.where(pd.notnull(df), None)  # 将 NaN 转成 None
+    df = df.where(pd.notnull(df), None)  # 把 NaN 转 None
     excel_cols = df.columns.tolist()
 
-    # 4️⃣ 数据库多余列 → 删除
-    for col in db_cols:
-        if col not in excel_cols:
-            cursor.execute(f"ALTER TABLE {TABLE_NAME} DROP COLUMN {col} CASCADE;")
-            print(f"🗑️ Dropped column {col} from table")
-
-    # 5️⃣ Excel 多余列 → 动态添加到数据库
-    # 重新获取数据库列（因为可能删除了）
-    cursor.execute(f"""
-        SELECT column_name
-        FROM information_schema.columns
-        WHERE table_name = %s AND column_name != 'id';
-    """, (TABLE_NAME,))
-    db_cols = [row['column_name'] for row in cursor.fetchall()]
-
+    # 3️⃣ 自动生成列定义
+    col_defs = []
     for col in excel_cols:
-        if col not in db_cols:
-            cursor.execute(f"ALTER TABLE {TABLE_NAME} ADD COLUMN {col} TEXT;")
-            print(f"➕ Added column {col} to table")
+        col_type = detect_col_type(df[col])
+        col_defs.append(f'"{col}" {col_type}')
+    create_cols = ", ".join(col_defs)
 
-    # 6️⃣ 清空表数据
-    cursor.execute(f"TRUNCATE TABLE {TABLE_NAME} RESTART IDENTITY CASCADE;")
-    print(f"✅ Table {TABLE_NAME} truncated")
-
-    # 7️⃣ 动态列插入
-    # 再次获取列名顺序（确保和 Excel 对齐）
     cursor.execute(f"""
-        SELECT column_name
-        FROM information_schema.columns
-        WHERE table_name = %s AND column_name != 'id';
-    """, (TABLE_NAME,))
-    db_cols = [row['column_name'] for row in cursor.fetchall()]
+        CREATE TABLE {TABLE_NAME} (
+            id SERIAL PRIMARY KEY,
+            {create_cols}
+        );
+    """)
+    print(f"✅ Created new table {TABLE_NAME} with detected column types")
 
-    columns_str = ",".join(db_cols)
-    placeholders = ",".join(["%s"] * len(db_cols))
+    # 4️⃣ 插入数据
+    columns_str = ",".join([f'"{col}"' for col in excel_cols])
+    placeholders = ",".join(["%s"] * len(excel_cols))
 
     for _, row in df.iterrows():
-        values = [row.get(col) for col in db_cols]  # Excel 没有的列会自动填 None
-        cursor.execute(f"INSERT INTO {TABLE_NAME} ({columns_str}) VALUES ({placeholders})", values)
+        values = [sanitize_value(row.get(col)) for col in excel_cols]
+        cursor.execute(
+            f"INSERT INTO {TABLE_NAME} ({columns_str}) VALUES ({placeholders})",
+            values
+        )
 
-    # 8️⃣ 提交事务并关闭
+    # 5️⃣ 提交并关闭
     conn.commit()
     cursor.close()
     conn.close()
-    print("✅ Finished initializing the PostgreSQL database dynamically.")
+    print("✅ Finished reinitializing PostgreSQL database (drop + recreate).")
 
 if __name__ == "__main__":
     init_db()
